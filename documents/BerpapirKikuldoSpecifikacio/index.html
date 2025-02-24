@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="hu">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="index.css">
+    <title>BérpapírKiküldőSpecifikáció</title>
+</head>
+<body>
+    <h1>Bérpapírkiküldő specifikáció</h1>
+    <h2>Funkciók</h2>
+    <h3>Levél kezelés</h3>
+    <h4>Betöltés</h4>
+    <h5>Felhasználói forgatókönyv</h5>
+    <ol>
+        <li>Alkalmazás megnyitása</li>
+        <li>Bérpapír pdf-ek betöltése a mappából</li>
+        <li>Eltárolt nevek lekérdezése</li>
+        <li>Ablak megjelenítése az elküldhető e-mail-ekkel</li>
+    </ol>
+    
+    <h4>Frissítés PDF hozzáadásakor</h4>
+    <p>Két másodpercenként lefut egy fájllekérdezés a mappában</p>
+
+    <h4>Levelek kiküldése</h4>
+    <ol>
+        <li>kiküldendő levelek kijelölése</li>
+        <li>Ha van csatolmány nélküli levél:</li>
+        <ol>
+            <li>Felugróablak</li>
+            <ul>
+                <li>Név - Születési dátum lista</li>
+            </ul>
+        </ol>
+        <li>Levelek kiküldése</li>
+        <li>kiküldött levelek csatolmányainak törlése</li>
+    </ol>
+
+    <h4>Levél kiküldése</h4>
+    <ol>
+        <li>Kattintás a Küldés gombra</li>
+        <li>Ha van csatolmány nélküli levél:</li>
+        <ol>
+            <li>Felugróablak: A levélhez nem tartozik csatolmány</li>
+        </ol>
+        <li>Levél kiküldése</li>
+        <li>Kiküldött levél csatolmányainak törlése</li>
+    </ol>
+
+    <h4>Név/Nevek kivétele a kiküldendő levelek közül</h4>
+    <ol>
+        <li>Rákattintás a kuka gombra</li>
+        <li>A név tiltólistára kerül</li>
+    </ol>
+    <h3>Címzett kezelés</h3>
+    <h4>Címzett Adatainak szerkesztése</h4>
+    <ol>
+        <li>Útvonal: Címzettek</li>
+        <li>Rákattintás a címzettre</li>
+        <li>Űrlap átírása</li>
+        <li>SQL függvény meghívása</li>
+    </ol>
+    <h4>Címzett hozzáadása</h4>
+    <h4>Címzett törlése</h4>
+    <h4>Címzettek hozzáadása .csv fájlból</h4>
+    <ol>
+        <li>.csv fájlok tartalmának feltöltése text-ként</li>
+        <li>Oszlopok párosítása (akár fejléc alapján, akár kézzel)</li>
+        <li>Adatok importálása</li>
+        <li>Előnézet megjelenítése (Az előnézetben lévő adatok szerkeszthetőek, és adott sorok törölhetőek)</li>
+        <li>Előnézet jóváhagyása, Összes adat felvitele</li>
+        <li>Felvitt adatok törlése az előnézetből (a fel nem vitt adatok, amikben valamilyen hiba van, ott maradnak)</li>
+        <li>Kilépési lehetőség az előnézetben maradt adatok elvesztésével</li>
+    </ol>
+
+</body>
+</html>
