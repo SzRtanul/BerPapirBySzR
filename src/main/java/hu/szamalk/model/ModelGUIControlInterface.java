@@ -10,5 +10,7 @@ package hu.szamalk.model;
  */
 public interface ModelGUIControlInterface {
     void doUpdate();
+    boolean doKuld(int nevHely);
     void doUpdateOneElement(int where);
+    boolean isKuldheto(int nevHely);
 }

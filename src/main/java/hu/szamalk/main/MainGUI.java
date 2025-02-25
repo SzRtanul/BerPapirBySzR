@@ -4,16 +4,24 @@
  */
 package hu.szamalk.main;
 
-import hu.szamalk.model.CsatolmanyNelkuliNevRekord;
+import hu.szamalk.graph.CsatolmanyNelkuliNevRekord;
+import hu.szamalk.graph.CsatolmanyRekord;
+import hu.szamalk.graph.ElkuldottRekord;
 import hu.szamalk.model.EmailService;
-import hu.szamalk.model.InaktivNevRekord;
-import hu.szamalk.model.LevelRekord;
+import hu.szamalk.graph.InaktivNevRekord;
+import hu.szamalk.graph.LevelRekord;
 import hu.szamalk.model.ModelGUIControlInterface;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
+import java.io.InputStreamReader;
+import java.nio.charset.Charset;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.Arrays;
+import java.util.Properties;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 import javax.swing.BoxLayout;
 import javax.swing.JPanel;
 
@@ -25,13 +33,16 @@ public class MainGUI extends javax.swing.JFrame implements ModelGUIControlInterf
     public static ModelGUIControlInterface notice;
     static String path;
     
+    String subject;
+    
     private static EmailService email;
     JPanel[] jPanels;
     
     
     // Névcsoport
     public static String[][] nevEmailMunkaviszony; // Adatbázis
-    public static boolean[] kijelol;
+    public static boolean[] nevetKijelol;
+    public static boolean[] elkuldott;
     public static boolean[] rendbenvan;
     public static boolean[] inaktivalt;
     public static int[] sorszam;
@@ -41,6 +52,7 @@ public class MainGUI extends javax.swing.JFrame implements ModelGUIControlInterf
    // static String[][] Jogviszonyok;
     // Csatolmánycsoport
     public static String[] FileList;
+    public static boolean[] fajltKijelol;
     public static String[][] separatedFiles;
     public static int[] tartozik;
    // static int[] fileRendbenVan;
@@ -57,22 +69,21 @@ public class MainGUI extends javax.swing.JFrame implements ModelGUIControlInterf
      */
     public MainGUI() {
         initComponents();
-        jTabbedPane1.setEnabledAt(1, false);
+        jTabbedPane1.setEnabledAt(2, false);
         email = new EmailService("smtp.gmail.com", "465", "elekt843@gmail.com", "xlns bjfp mdwq wfgf");
-        jPanels = new JPanel[]{Pn_withcsatm, Pn_withoutcsatm, Pn_kivontCsatolmanyok, Pn_kivontCimzettek};
+        jPanels = new JPanel[]{Pn_withcsatm, Pn_withoutcsatm, Pn_kivontCsatolmanyok, Pn_kivontCimzettek, Pn_elkuldott};
         
         for (int i = 0; i < jPanels.length; i++) {
             jPanels[i].setLayout(new BoxLayout(jPanels[i], BoxLayout.Y_AXIS));
         }
+        jScrollPane1.getVerticalScrollBar().setUnitIncrement(16);
+        jScrollPane2.getVerticalScrollBar().setUnitIncrement(16);
+        jScrollPane3.getVerticalScrollBar().setUnitIncrement(16);
+        jScrollPane4.getVerticalScrollBar().setUnitIncrement(16);
+        jScrollPane5.getVerticalScrollBar().setUnitIncrement(16);
         path = "files";
         //nevEmail
         updateNames();
-        FileList = getFileList();
-        updateAttachments();
-        
-        for (int i = 0; i < jPanels.length; i++) {
-            updateJPanelHeight(jPanels[i]);
-        }
         notice = this;
     }
 
@@ -85,17 +96,17 @@ public class MainGUI extends javax.swing.JFrame implements ModelGUIControlInterf
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
 
-        jButton1 = new javax.swing.JButton();
-        jButton2 = new javax.swing.JButton();
+        Bt_nevlistaRefresh = new javax.swing.JButton();
+        Bt_csatolmanyRefresh = new javax.swing.JButton();
         jTabbedPane1 = new javax.swing.JTabbedPane();
         jPanel4 = new javax.swing.JPanel();
         La_KukazottNevek1 = new javax.swing.JLabel();
         La_CsatolmanyNelkuliLevelek1 = new javax.swing.JLabel();
-        jCheckBox2 = new javax.swing.JCheckBox();
+        Chk_osszesKuldhetoKijelolese = new javax.swing.JCheckBox();
         Bt_sendAllMail = new javax.swing.JButton();
         La_KukazottNevek2 = new javax.swing.JLabel();
-        jButton3 = new javax.swing.JButton();
-        jButton4 = new javax.swing.JButton();
+        Bt_kijeloltLeveleketKuld = new javax.swing.JButton();
+        Bt_KijeloltCimzetteketInaktival = new javax.swing.JButton();
         jScrollPane1 = new javax.swing.JScrollPane();
         Pn_withcsatm = new javax.swing.JPanel();
         jScrollPane2 = new javax.swing.JScrollPane();
@@ -104,16 +115,33 @@ public class MainGUI extends javax.swing.JFrame implements ModelGUIControlInterf
         Pn_kivontCimzettek = new javax.swing.JPanel();
         jScrollPane4 = new javax.swing.JScrollPane();
         Pn_kivontCsatolmanyok = new javax.swing.JPanel();
+        Chk_osszesKivontKijelolese = new javax.swing.JCheckBox();
+        Bt_kijeloltCimzettekVissza = new javax.swing.JButton();
+        Bt_osszesCimzettVissza = new javax.swing.JButton();
+        jPanel2 = new javax.swing.JPanel();
+        jScrollPane5 = new javax.swing.JScrollPane();
+        Pn_elkuldott = new javax.swing.JPanel();
         jPanel3 = new javax.swing.JPanel();
         jPanel1 = new javax.swing.JPanel();
         jDesktopPane1 = new javax.swing.JDesktopPane();
         jButton5 = new javax.swing.JButton();
+        Bt_osszesFajlTorlese = new javax.swing.JButton();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
 
-        jButton1.setText("Névlista frissítse");
+        Bt_nevlistaRefresh.setText("Névlista frissítse");
+        Bt_nevlistaRefresh.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                Bt_nevlistaRefreshActionPerformed(evt);
+            }
+        });
 
-        jButton2.setText("Csatolmánylista frissítése");
+        Bt_csatolmanyRefresh.setText("Csatolmánylista frissítése");
+        Bt_csatolmanyRefresh.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                Bt_csatolmanyRefreshActionPerformed(evt);
+            }
+        });
 
         jTabbedPane1.setBackground(new java.awt.Color(255, 255, 255));
         jTabbedPane1.setTabPlacement(javax.swing.JTabbedPane.LEFT);
@@ -122,12 +150,17 @@ public class MainGUI extends javax.swing.JFrame implements ModelGUIControlInterf
         jPanel4.setBackground(new java.awt.Color(255, 0, 255));
 
         La_KukazottNevek1.setFont(new java.awt.Font("Segoe UI", 1, 18)); // NOI18N
-        La_KukazottNevek1.setText("Küldés alól kivont csatolmányok:");
+        La_KukazottNevek1.setText("Sehova sem tartozó csatolmányok:");
 
         La_CsatolmanyNelkuliLevelek1.setFont(new java.awt.Font("Segoe UI", 1, 18)); // NOI18N
         La_CsatolmanyNelkuliLevelek1.setText("Csatolmány nélküli levelek:");
 
-        jCheckBox2.setText("Összes kijelölése");
+        Chk_osszesKuldhetoKijelolese.setText("Összes kijelölése");
+        Chk_osszesKuldhetoKijelolese.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                Chk_osszesKuldhetoKijeloleseActionPerformed(evt);
+            }
+        });
 
         Bt_sendAllMail.setText("Összes levél elküldése");
         Bt_sendAllMail.addActionListener(new java.awt.event.ActionListener() {
@@ -139,11 +172,20 @@ public class MainGUI extends javax.swing.JFrame implements ModelGUIControlInterf
         La_KukazottNevek2.setFont(new java.awt.Font("Segoe UI", 1, 18)); // NOI18N
         La_KukazottNevek2.setText("Küldés alól kivont levelek:");
 
-        jButton3.setText("Kijelölt levelek elküldése");
-        jButton3.setToolTipText("");
-        jButton3.setActionCommand("Kijelölt levelek elküldése");
+        Bt_kijeloltLeveleketKuld.setText("Kijelölt levelek elküldése");
+        Bt_kijeloltLeveleketKuld.setToolTipText("");
+        Bt_kijeloltLeveleketKuld.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                Bt_kijeloltLeveleketKuldActionPerformed(evt);
+            }
+        });
 
-        jButton4.setText("Kijelölt levelek törlése");
+        Bt_KijeloltCimzetteketInaktival.setText("Kijelölt címzettek inaktiválása");
+        Bt_KijeloltCimzetteketInaktival.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                Bt_KijeloltCimzetteketInaktivalActionPerformed(evt);
+            }
+        });
 
         Pn_withcsatm.setBackground(new java.awt.Color(102, 255, 51));
         Pn_withcsatm.setPreferredSize(new java.awt.Dimension(191, 749));
@@ -172,7 +214,7 @@ public class MainGUI extends javax.swing.JFrame implements ModelGUIControlInterf
         );
         Pn_kivontCimzettekLayout.setVerticalGroup(
             Pn_kivontCimzettekLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 223, Short.MAX_VALUE)
+            .addGap(0, 193, Short.MAX_VALUE)
         );
 
         jScrollPane3.setViewportView(Pn_kivontCimzettek);
@@ -191,10 +233,31 @@ public class MainGUI extends javax.swing.JFrame implements ModelGUIControlInterf
         );
         Pn_kivontCsatolmanyokLayout.setVerticalGroup(
             Pn_kivontCsatolmanyokLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 209, Short.MAX_VALUE)
+            .addGap(0, 179, Short.MAX_VALUE)
         );
 
         jScrollPane4.setViewportView(Pn_kivontCsatolmanyok);
+
+        Chk_osszesKivontKijelolese.setText("Összes kijelölése");
+        Chk_osszesKivontKijelolese.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                Chk_osszesKivontKijeloleseActionPerformed(evt);
+            }
+        });
+
+        Bt_kijeloltCimzettekVissza.setText("Kijelölt Címzettek Visszatétele");
+        Bt_kijeloltCimzettekVissza.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                Bt_kijeloltCimzettekVisszaActionPerformed(evt);
+            }
+        });
+
+        Bt_osszesCimzettVissza.setText("Összes címzett visszatétele");
+        Bt_osszesCimzettVissza.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                Bt_osszesCimzettVisszaActionPerformed(evt);
+            }
+        });
 
         javax.swing.GroupLayout jPanel4Layout = new javax.swing.GroupLayout(jPanel4);
         jPanel4.setLayout(jPanel4Layout);
@@ -204,21 +267,26 @@ public class MainGUI extends javax.swing.JFrame implements ModelGUIControlInterf
                 .addContainerGap()
                 .addGroup(jPanel4Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(jPanel4Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                        .addGroup(jPanel4Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                            .addComponent(La_CsatolmanyNelkuliLevelek1, javax.swing.GroupLayout.PREFERRED_SIZE, 307, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addComponent(La_KukazottNevek1, javax.swing.GroupLayout.PREFERRED_SIZE, 307, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addComponent(La_KukazottNevek2, javax.swing.GroupLayout.PREFERRED_SIZE, 307, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addComponent(jScrollPane3, javax.swing.GroupLayout.PREFERRED_SIZE, 0, Short.MAX_VALUE))
-                        .addComponent(jScrollPane4, javax.swing.GroupLayout.DEFAULT_SIZE, 313, Short.MAX_VALUE))
-                    .addComponent(jScrollPane2, javax.swing.GroupLayout.PREFERRED_SIZE, 307, javax.swing.GroupLayout.PREFERRED_SIZE))
+                        .addComponent(La_CsatolmanyNelkuliLevelek1, javax.swing.GroupLayout.PREFERRED_SIZE, 307, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addComponent(La_KukazottNevek1, javax.swing.GroupLayout.PREFERRED_SIZE, 307, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addComponent(jScrollPane3, javax.swing.GroupLayout.PREFERRED_SIZE, 0, Short.MAX_VALUE)
+                        .addComponent(jScrollPane4, javax.swing.GroupLayout.DEFAULT_SIZE, 313, Short.MAX_VALUE)
+                        .addGroup(jPanel4Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING, false)
+                            .addGroup(javax.swing.GroupLayout.Alignment.LEADING, jPanel4Layout.createSequentialGroup()
+                                .addComponent(Chk_osszesKivontKijelolese)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                                .addComponent(Bt_kijeloltCimzettekVissza))
+                            .addComponent(La_KukazottNevek2, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.PREFERRED_SIZE, 307, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                    .addComponent(jScrollPane2, javax.swing.GroupLayout.PREFERRED_SIZE, 307, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(Bt_osszesCimzettVissza))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(jPanel4Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(jPanel4Layout.createSequentialGroup()
-                        .addComponent(jCheckBox2)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 312, Short.MAX_VALUE)
-                        .addComponent(jButton3)
+                        .addComponent(Chk_osszesKuldhetoKijelolese)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 271, Short.MAX_VALUE)
+                        .addComponent(Bt_kijeloltLeveleketKuld)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                        .addComponent(jButton4))
+                        .addComponent(Bt_KijeloltCimzetteketInaktival))
                     .addComponent(Bt_sendAllMail)
                     .addComponent(jScrollPane1))
                 .addGap(19, 19, 19))
@@ -230,24 +298,30 @@ public class MainGUI extends javax.swing.JFrame implements ModelGUIControlInterf
                     .addGroup(jPanel4Layout.createSequentialGroup()
                         .addGap(29, 29, 29)
                         .addGroup(jPanel4Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                            .addComponent(jCheckBox2)
-                            .addComponent(jButton3)
-                            .addComponent(jButton4)))
+                            .addComponent(Chk_osszesKuldhetoKijelolese)
+                            .addComponent(Bt_kijeloltLeveleketKuld)
+                            .addComponent(Bt_KijeloltCimzetteketInaktival)))
                     .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel4Layout.createSequentialGroup()
                         .addContainerGap()
                         .addComponent(La_CsatolmanyNelkuliLevelek1)))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                 .addGroup(jPanel4Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
-                    .addGroup(javax.swing.GroupLayout.Alignment.LEADING, jPanel4Layout.createSequentialGroup()
+                    .addGroup(jPanel4Layout.createSequentialGroup()
                         .addComponent(jScrollPane2, javax.swing.GroupLayout.PREFERRED_SIZE, 203, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addComponent(La_KukazottNevek2)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(jScrollPane3, javax.swing.GroupLayout.PREFERRED_SIZE, 235, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addGroup(jPanel4Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                            .addComponent(Chk_osszesKivontKijelolese)
+                            .addComponent(Bt_kijeloltCimzettekVissza))
+                        .addGap(8, 8, 8)
+                        .addComponent(jScrollPane3, javax.swing.GroupLayout.PREFERRED_SIZE, 205, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(Bt_osszesCimzettVissza)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                         .addComponent(La_KukazottNevek1)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(jScrollPane4, javax.swing.GroupLayout.DEFAULT_SIZE, 221, Short.MAX_VALUE))
+                        .addComponent(jScrollPane4, javax.swing.GroupLayout.PREFERRED_SIZE, 191, javax.swing.GroupLayout.PREFERRED_SIZE))
                     .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 0, Short.MAX_VALUE))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(Bt_sendAllMail)
@@ -255,6 +329,44 @@ public class MainGUI extends javax.swing.JFrame implements ModelGUIControlInterf
         );
 
         jTabbedPane1.addTab("Levél küldés", jPanel4);
+
+        jPanel2.setBackground(new java.awt.Color(255, 51, 255));
+        jPanel2.setForeground(new java.awt.Color(255, 51, 204));
+
+        Pn_elkuldott.setBackground(new java.awt.Color(153, 51, 255));
+
+        javax.swing.GroupLayout Pn_elkuldottLayout = new javax.swing.GroupLayout(Pn_elkuldott);
+        Pn_elkuldott.setLayout(Pn_elkuldottLayout);
+        Pn_elkuldottLayout.setHorizontalGroup(
+            Pn_elkuldottLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGap(0, 1033, Short.MAX_VALUE)
+        );
+        Pn_elkuldottLayout.setVerticalGroup(
+            Pn_elkuldottLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGap(0, 738, Short.MAX_VALUE)
+        );
+
+        jScrollPane5.setViewportView(Pn_elkuldott);
+
+        javax.swing.GroupLayout jPanel2Layout = new javax.swing.GroupLayout(jPanel2);
+        jPanel2.setLayout(jPanel2Layout);
+        jPanel2Layout.setHorizontalGroup(
+            jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel2Layout.createSequentialGroup()
+                .addGap(70, 70, 70)
+                .addComponent(jScrollPane5, javax.swing.GroupLayout.PREFERRED_SIZE, 931, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(70, 70, 70))
+        );
+        jPanel2Layout.setVerticalGroup(
+            jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(jPanel2Layout.createSequentialGroup()
+                .addGap(70, 70, 70)
+                .addComponent(jScrollPane5, javax.swing.GroupLayout.PREFERRED_SIZE, 710, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(70, 70, 70))
+        );
+
+        jTabbedPane1.addTab("Elküldött levelek", jPanel2);
+        jPanel2.getAccessibleContext().setAccessibleName("");
 
         javax.swing.GroupLayout jPanel1Layout = new javax.swing.GroupLayout(jPanel1);
         jPanel1.setLayout(jPanel1Layout);
@@ -296,7 +408,7 @@ public class MainGUI extends javax.swing.JFrame implements ModelGUIControlInterf
                 .addComponent(jPanel1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
             .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel3Layout.createSequentialGroup()
-                .addContainerGap(67, Short.MAX_VALUE)
+                .addContainerGap(79, Short.MAX_VALUE)
                 .addComponent(jDesktopPane1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addContainerGap())
         );
@@ -304,6 +416,14 @@ public class MainGUI extends javax.swing.JFrame implements ModelGUIControlInterf
         jTabbedPane1.addTab("Címzettek kezelése", jPanel3);
 
         jButton5.setText("Nevek betöltése .csv fájlból");
+        jButton5.setEnabled(false);
+
+        Bt_osszesFajlTorlese.setText("Összes fájl törlése");
+        Bt_osszesFajlTorlese.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                Bt_osszesFajlTorleseActionPerformed(evt);
+            }
+        });
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
@@ -314,10 +434,12 @@ public class MainGUI extends javax.swing.JFrame implements ModelGUIControlInterf
                     .addGroup(layout.createSequentialGroup()
                         .addGap(520, 520, 520)
                         .addComponent(jButton5)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                        .addComponent(Bt_osszesFajlTorlese)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(jButton2)
+                        .addComponent(Bt_nevlistaRefresh, javax.swing.GroupLayout.PREFERRED_SIZE, 162, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(jButton1, javax.swing.GroupLayout.PREFERRED_SIZE, 162, javax.swing.GroupLayout.PREFERRED_SIZE))
+                        .addComponent(Bt_csatolmanyRefresh))
                     .addGroup(layout.createSequentialGroup()
                         .addContainerGap()
                         .addComponent(jTabbedPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 1205, Short.MAX_VALUE)))
@@ -328,11 +450,13 @@ public class MainGUI extends javax.swing.JFrame implements ModelGUIControlInterf
             .addGroup(layout.createSequentialGroup()
                 .addGap(22, 22, 22)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(jButton2)
-                    .addComponent(jButton1)
-                    .addComponent(jButton5))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                .addComponent(jTabbedPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 838, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addComponent(Bt_csatolmanyRefresh)
+                    .addComponent(Bt_nevlistaRefresh)
+                    .addComponent(jButton5)
+                    .addComponent(Bt_osszesFajlTorlese))
+                .addGap(13, 13, 13)
+                .addComponent(jTabbedPane1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(9, 9, 9))
         );
 
         pack();
@@ -345,17 +469,6 @@ public class MainGUI extends javax.swing.JFrame implements ModelGUIControlInterf
     }
     
     private String[][] updateNames(){
-        String[][] nevEmailMunkaviszonyIDG = new String[][]{
-            {"Szabó Roland", "rolandszb111@gmail.com", "9820"},
-            {"Felföldi János", "janikahuszar666@gmail.com", "9941"},
-            {"Szabó Roland 1", "szrtanu@gmail.com", "9941"},
-        };
-        
-       // Hozzáadás vagy frissítés
-        if(false){
-            clearPanels();
-        }
-        
         /*Jogviszonyok = new String[][]{
             {"003","004"},
             {"003"}
@@ -363,7 +476,7 @@ public class MainGUI extends javax.swing.JFrame implements ModelGUIControlInterf
         
         
          try {
-            String[] sorok = Files.lines(Paths.get("BookOfTony.csv")).toArray(String[]::new);
+            String[] sorok = Files.lines(Paths.get("config/adatok2.csv")).toArray(String[]::new);
             nevEmailMunkaviszony = new String[sorok.length][3];
             for(int i = 0; i<sorok.length; i++) {
               String[] data = sorok[i].split(";");
@@ -374,12 +487,17 @@ public class MainGUI extends javax.swing.JFrame implements ModelGUIControlInterf
         } catch (IOException e) {
             System.out.println("An error occurred.");
         }
-        kijelol = new boolean[nevEmailMunkaviszony.length];
+        nevetKijelol = new boolean[nevEmailMunkaviszony.length];
         rendbenvan = new boolean[nevEmailMunkaviszony.length];
         inaktivalt = new boolean[nevEmailMunkaviszony.length];
+        elkuldott = new boolean[nevEmailMunkaviszony.length];
         sorszam = new int[nevEmailMunkaviszony.length];
-        tartozik = new int[nevEmailMunkaviszony.length];
-        return nevEmailMunkaviszonyIDG;
+        updateAttachments();
+        return null;
+    }
+    
+    public boolean isKuldheto(int nevHely){
+        return !elkuldott[nevHely] && !inaktivalt[nevHely] && csatolmanyok[nevHely].length > 0;
     }
     
     private void clearPanels(){
@@ -392,6 +510,20 @@ public class MainGUI extends javax.swing.JFrame implements ModelGUIControlInterf
     
     private void updateAttachments(){
         clearPanels();
+        Properties prop = new Properties();
+        try {
+            prop.load(new InputStreamReader(new FileInputStream(new File("config/settings.properties")), Charset.forName("UTF-8")));
+            subject = prop.getProperty("email.subject");
+        } 
+        catch (IOException ex) {
+            ex.printStackTrace();
+        }
+        FileList = getFileList();
+        tartozik = new int[FileList.length];
+        for (int i = 0; i < tartozik.length; i++) {
+            tartozik[i] = -1;
+        }
+        fajltKijelol = new boolean[FileList.length];
         csatolmanyok = new int[nevEmailMunkaviszony.length][5];
         csatolmanyFajlNevek = new String[nevEmailMunkaviszony.length][5];
         
@@ -403,11 +535,12 @@ public class MainGUI extends javax.swing.JFrame implements ModelGUIControlInterf
             int meret = 0;
             for (;j < FileList.length; j++) {
                 boolean gd = separatedFiles[j][0].toLowerCase().equals(nevEmailMunkaviszony[i][0].toLowerCase());
-                if(gd && meret >= FileList.length){
-                    int[] uttomb = new int[FileList.length +5];
-                    String[] ujtomb = new String[FileList.length +5];
+                tartozik[j] = gd ? i : tartozik[j];
+                if(gd && meret >= csatolmanyok[i].length-1){
+                    int[] uttomb = new int[csatolmanyok[i].length + 5];
+                    String[] ujtomb = new String[csatolmanyFajlNevek[i].length + 5];
                     System.arraycopy(csatolmanyok[i], 0, uttomb, 0, csatolmanyok[i].length);
-                    System.arraycopy(csatolmanyFajlNevek[i], 0, uttomb, 0, csatolmanyFajlNevek[i].length);
+                    System.arraycopy(csatolmanyFajlNevek[i], 0, ujtomb, 0, csatolmanyFajlNevek[i].length);
                     csatolmanyok[i] = uttomb;
                     csatolmanyFajlNevek[i] = ujtomb;
                 }
@@ -419,33 +552,60 @@ public class MainGUI extends javax.swing.JFrame implements ModelGUIControlInterf
             csatolmanyFajlNevek[i] = Arrays.copyOf(csatolmanyFajlNevek[i], meret);
             kezd = j < FileList.length ? j : kezd;
            // tar.setLocation(13, i * tar.getHeight() + 3);
-            if (inaktivalt[i] == false) {
-                if(csatolmanyok[i].length > 0){
-                    Pn_withcsatm.add(new LevelRekord(i, csatolmanyok[i]));
+            if (!elkuldott[i]) {
+                if (inaktivalt[i] == false) {
+                    if(csatolmanyok[i].length > 0){
+                        Pn_withcsatm.add(new LevelRekord(i, csatolmanyok[i]));
+                    }
+                    else{
+                        Pn_withoutcsatm.add(new CsatolmanyNelkuliNevRekord(i));
+                    }
                 }
                 else{
-                    Pn_withoutcsatm.add(new CsatolmanyNelkuliNevRekord(i));
+                    Pn_kivontCimzettek.add(new InaktivNevRekord(i));
                 }
             }
             else{
-                Pn_kivontCimzettek.add(new InaktivNevRekord());
+                Pn_elkuldott.add(new ElkuldottRekord(i));
             }
         }
+        
+        for (int i = 0; i < FileList.length; i++) {
+            System.out.println(tartozik[i]);
+            if(tartozik[i] == -1) Pn_kivontCsatolmanyok.add(new CsatolmanyRekord(i));
+        }
+        
         for (int i = 0; i < jPanels.length; i++) {
             updateJPanelHeight(jPanels[i]);
         }
     }
     
-    public static boolean doKuld(int nevHely){
-        System.out.println(nevHely + "");
-        try {
-            System.out.println(nevEmailMunkaviszony[nevHely][1]);
-            email.sendMail(nevEmailMunkaviszony[nevHely][1], 
-                    "Bérpapír 2025-06", "<p>Kedves Diák!</p><p>A e-mail mellékelten a Bérpapírokat tartalmazza.</p>", "files/", csatolmanyFajlNevek[nevHely]);
-        } catch (Exception e) {
-            System.out.println(e.getMessage());
-            return false;
-        }
+    ExecutorService pool = Executors.newFixedThreadPool(60);
+    
+    public boolean doKuld(int nevHely){
+        Runnable r;
+        r= new Runnable(){
+            public void run() {
+                System.out.println(nevHely + "");
+                try {
+                    System.out.println(nevEmailMunkaviszony[nevHely][1]);
+                    if(MainGUI.notice != null && notice.isKuldheto(nevHely)){
+                        while(!email.sendMail(nevEmailMunkaviszony[nevHely][1], 
+                            subject, Files.readString(Paths.get("config/emailtext.html")), "files/", csatolmanyFajlNevek[nevHely])){
+                            System.out.println(nevHely);
+                            Thread.sleep(1000);
+                        }
+                        elkuldott[nevHely] = true;
+                        if(notice != null) notice.doUpdate();
+                    }
+                } catch (Exception e) {
+                    
+                    System.out.println(e.getMessage());
+                }
+                pool.close();
+            }
+        };
+        pool.execute(r);
         return true;
     }
     
@@ -479,10 +639,69 @@ public class MainGUI extends javax.swing.JFrame implements ModelGUIControlInterf
     
     private void Bt_sendAllMailActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_Bt_sendAllMailActionPerformed
         for (int i = 0; i < nevEmailMunkaviszony.length; i++) {
-            if(csatolmanyok[i].length > 0 && !inaktivalt[i]) doKuld(i);
+            if(isKuldheto(i)) doKuld(i);
         }
     }//GEN-LAST:event_Bt_sendAllMailActionPerformed
 
+    private void Chk_osszesKuldhetoKijeloleseActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_Chk_osszesKuldhetoKijeloleseActionPerformed
+        boolean jelol = Chk_osszesKuldhetoKijelolese.isSelected();
+        for (int i = 0; i < nevetKijelol.length; i++) {
+            nevetKijelol[i] = isKuldheto(i) ? jelol : nevetKijelol[i];
+        }
+        doUpdate();
+    }//GEN-LAST:event_Chk_osszesKuldhetoKijeloleseActionPerformed
+
+    private void Bt_kijeloltLeveleketKuldActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_Bt_kijeloltLeveleketKuldActionPerformed
+        for (int i = 0; i < nevEmailMunkaviszony.length; i++) {
+            if(nevetKijelol[i] && isKuldheto(i)) doKuld(i);
+        }
+    }//GEN-LAST:event_Bt_kijeloltLeveleketKuldActionPerformed
+
+    private void Bt_KijeloltCimzetteketInaktivalActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_Bt_KijeloltCimzetteketInaktivalActionPerformed
+        for (int i = 0; i < nevEmailMunkaviszony.length; i++) {
+            if(nevetKijelol[i]) inaktivalt[i] = true;
+        }
+        doUpdate();
+    }//GEN-LAST:event_Bt_KijeloltCimzetteketInaktivalActionPerformed
+
+    private void Chk_osszesKivontKijeloleseActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_Chk_osszesKivontKijeloleseActionPerformed
+        boolean bb = Chk_osszesKivontKijelolese.isSelected();
+        for (int i = 0; i < nevEmailMunkaviszony.length; i++) {
+            nevetKijelol[i] = inaktivalt[i] ? bb : nevetKijelol[i];
+        }
+        doUpdate();
+    }//GEN-LAST:event_Chk_osszesKivontKijeloleseActionPerformed
+
+    private void Bt_kijeloltCimzettekVisszaActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_Bt_kijeloltCimzettekVisszaActionPerformed
+        for (int i = 0; i < nevEmailMunkaviszony.length; i++) {
+            inaktivalt[i] = inaktivalt[i] ? false : inaktivalt[i];
+        }
+        doUpdate();
+    }//GEN-LAST:event_Bt_kijeloltCimzettekVisszaActionPerformed
+
+    private void Bt_osszesCimzettVisszaActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_Bt_osszesCimzettVisszaActionPerformed
+        for (int i = 0; i < nevEmailMunkaviszony.length; i++) {
+            inaktivalt[i] = false;
+        }
+        doUpdate();
+    }//GEN-LAST:event_Bt_osszesCimzettVisszaActionPerformed
+
+    private void Bt_nevlistaRefreshActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_Bt_nevlistaRefreshActionPerformed
+        updateNames();
+    }//GEN-LAST:event_Bt_nevlistaRefreshActionPerformed
+
+    private void Bt_csatolmanyRefreshActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_Bt_csatolmanyRefreshActionPerformed
+        updateAttachments();
+    }//GEN-LAST:event_Bt_csatolmanyRefreshActionPerformed
+
+    private void Bt_osszesFajlTorleseActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_Bt_osszesFajlTorleseActionPerformed
+        String[] Files = getFileList();
+        for (int i = 0; i < Files.length; i++) {
+            new File("files/"+Files[i]).delete();
+        }
+        updateAttachments();
+    }//GEN-LAST:event_Bt_osszesFajlTorleseActionPerformed
+    
     /**
      * @param args the command line arguments
      */
@@ -519,28 +738,35 @@ public class MainGUI extends javax.swing.JFrame implements ModelGUIControlInterf
     }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
+    private javax.swing.JButton Bt_KijeloltCimzetteketInaktival;
+    private javax.swing.JButton Bt_csatolmanyRefresh;
+    private javax.swing.JButton Bt_kijeloltCimzettekVissza;
+    private javax.swing.JButton Bt_kijeloltLeveleketKuld;
+    private javax.swing.JButton Bt_nevlistaRefresh;
+    private javax.swing.JButton Bt_osszesCimzettVissza;
+    private javax.swing.JButton Bt_osszesFajlTorlese;
     private javax.swing.JButton Bt_sendAllMail;
+    private javax.swing.JCheckBox Chk_osszesKivontKijelolese;
+    private javax.swing.JCheckBox Chk_osszesKuldhetoKijelolese;
     private javax.swing.JLabel La_CsatolmanyNelkuliLevelek1;
     private javax.swing.JLabel La_KukazottNevek1;
     private javax.swing.JLabel La_KukazottNevek2;
+    private javax.swing.JPanel Pn_elkuldott;
     private javax.swing.JPanel Pn_kivontCimzettek;
     private javax.swing.JPanel Pn_kivontCsatolmanyok;
     private javax.swing.JPanel Pn_withcsatm;
     private javax.swing.JPanel Pn_withoutcsatm;
-    private javax.swing.JButton jButton1;
-    private javax.swing.JButton jButton2;
-    private javax.swing.JButton jButton3;
-    private javax.swing.JButton jButton4;
     private javax.swing.JButton jButton5;
-    private javax.swing.JCheckBox jCheckBox2;
     private javax.swing.JDesktopPane jDesktopPane1;
     private javax.swing.JPanel jPanel1;
+    private javax.swing.JPanel jPanel2;
     private javax.swing.JPanel jPanel3;
     private javax.swing.JPanel jPanel4;
     private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JScrollPane jScrollPane2;
     private javax.swing.JScrollPane jScrollPane3;
     private javax.swing.JScrollPane jScrollPane4;
+    private javax.swing.JScrollPane jScrollPane5;
     private javax.swing.JTabbedPane jTabbedPane1;
     // End of variables declaration//GEN-END:variables
 

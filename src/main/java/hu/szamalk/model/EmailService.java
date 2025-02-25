@@ -45,15 +45,15 @@ public class EmailService {
                 this.password = password;
     }   
     
-    public void sendMail(
+    public boolean sendMail(
             String to,
             String subject,
             String msg
     ) throws Exception {
-        this.sendMail(to, subject, msg, "", new String[0]);
+        return this.sendMail(to, subject, msg, "", new String[0]);
     }
 
-    public void sendMail(
+    public boolean sendMail(
             String to,
             String subject, 
             String msg, 
@@ -76,7 +76,9 @@ public class EmailService {
         } catch (Exception e) {
             System.out.println("Hibba!");
             System.out.println(e.getMessage());
+            return false;
         }
+        return true;
     }
     
     private Multipart addContents(String msg, String filepath, String[] filenames) throws MessagingException{
