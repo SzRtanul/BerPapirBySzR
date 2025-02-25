@@ -13,6 +13,7 @@ hu\szamalk\model\EmailService$1.class
 hu\szamalk\model\LevelRekord$4.class
 hu\szamalk\model\LevelRekord.class
 hu\szamalk\model\CsatolmanyRekord.class
+hu\szamalk\model\ModelGUIControlInterface.class
 hu\szamalk\model\CsatolmanyNelkuliNevRekord.class
 hu\szamalk\main\MainGUI$1.class
 hu\szamalk\model\InaktivNevRekord$2.class

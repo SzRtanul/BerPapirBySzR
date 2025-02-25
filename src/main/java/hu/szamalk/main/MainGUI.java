@@ -6,32 +6,25 @@ package hu.szamalk.main;
 
 import hu.szamalk.model.CsatolmanyNelkuliNevRekord;
 import hu.szamalk.model.EmailService;
+import hu.szamalk.model.InaktivNevRekord;
 import hu.szamalk.model.LevelRekord;
-import java.awt.Component;
-import java.awt.Dimension;
-import java.awt.GridLayout;
-import java.beans.PropertyChangeEvent;
-import java.beans.PropertyChangeListener;
+import hu.szamalk.model.ModelGUIControlInterface;
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.nio.charset.Charset;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.Arrays;
-import java.util.Locale;
-import java.util.Scanner;
-import javax.swing.Box;
 import javax.swing.BoxLayout;
-import javax.swing.JComboBox;
 import javax.swing.JPanel;
 
 /**
  *
  * @author Roland
  */
-public class MainGUI extends javax.swing.JFrame {
+public class MainGUI extends javax.swing.JFrame implements ModelGUIControlInterface{
+    public static ModelGUIControlInterface notice;
     static String path;
+    
     private static EmailService email;
     JPanel[] jPanels;
     
@@ -80,20 +73,7 @@ public class MainGUI extends javax.swing.JFrame {
         for (int i = 0; i < jPanels.length; i++) {
             updateJPanelHeight(jPanels[i]);
         }
-        
-        /*System.out.println(nevEmailMunkaviszony[0][0]);
-        System.out.println(tar.nev);
-        tar.nev = "Szarol";
-        System.out.println(nevEmailMunkaviszony[0][0]);
-        nevEmailMunkaviszony[0][0] = "Szabó";
-        System.out.println(tar.nev);*/
-       
-       /*System.out.println(tar.csatolmanyok[0]);
-       System.out.println(Jogviszonyok[0][1]);
-       Jogviszonyok[0][0] = "005";
-        System.out.println(tar.csatolmanyok[0]);
-        tar.csatolmanyok[1] = "006";
-        System.out.println(Jogviszonyok[0][1]);*/
+        notice = this;
     }
 
     /**
@@ -360,6 +340,8 @@ public class MainGUI extends javax.swing.JFrame {
     
     private void updateJPanelHeight(JPanel panel){
         panel.setPreferredSize(panel.getLayout().minimumLayoutSize(panel));
+        panel.revalidate();
+        panel.repaint();
     }
     
     private String[][] updateNames(){
@@ -371,9 +353,7 @@ public class MainGUI extends javax.swing.JFrame {
         
        // Hozzáadás vagy frissítés
         if(false){
-            for (int i = 0; i < jPanels.length; i++) {
-                jPanels[i].removeAll();
-            }
+            clearPanels();
         }
         
         /*Jogviszonyok = new String[][]{
@@ -402,9 +382,16 @@ public class MainGUI extends javax.swing.JFrame {
         return nevEmailMunkaviszonyIDG;
     }
     
+    private void clearPanels(){
+        for (int i = 0; i < jPanels.length; i++) {
+            jPanels[i].removeAll();
+            updateJPanelHeight(jPanels[i]);
+            jPanels[i].repaint();
+        }
+    }
+    
     private void updateAttachments(){
-        Pn_withcsatm.removeAll();
-        Pn_withoutcsatm.removeAll();
+        clearPanels();
         csatolmanyok = new int[nevEmailMunkaviszony.length][5];
         csatolmanyFajlNevek = new String[nevEmailMunkaviszony.length][5];
         
@@ -432,11 +419,16 @@ public class MainGUI extends javax.swing.JFrame {
             csatolmanyFajlNevek[i] = Arrays.copyOf(csatolmanyFajlNevek[i], meret);
             kezd = j < FileList.length ? j : kezd;
            // tar.setLocation(13, i * tar.getHeight() + 3);
-            if(csatolmanyok[i].length > 0){
-                Pn_withcsatm.add(new LevelRekord(i, csatolmanyok[i]));
+            if (inaktivalt[i] == false) {
+                if(csatolmanyok[i].length > 0){
+                    Pn_withcsatm.add(new LevelRekord(i, csatolmanyok[i]));
+                }
+                else{
+                    Pn_withoutcsatm.add(new CsatolmanyNelkuliNevRekord(i));
+                }
             }
             else{
-                Pn_withoutcsatm.add(new CsatolmanyNelkuliNevRekord(i));
+                Pn_kivontCimzettek.add(new InaktivNevRekord());
             }
         }
         for (int i = 0; i < jPanels.length; i++) {
@@ -487,7 +479,7 @@ public class MainGUI extends javax.swing.JFrame {
     
     private void Bt_sendAllMailActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_Bt_sendAllMailActionPerformed
         for (int i = 0; i < nevEmailMunkaviszony.length; i++) {
-            if(csatolmanyok.length > 0) doKuld(i);
+            if(csatolmanyok[i].length > 0 && !inaktivalt[i]) doKuld(i);
         }
     }//GEN-LAST:event_Bt_sendAllMailActionPerformed
 
@@ -551,4 +543,15 @@ public class MainGUI extends javax.swing.JFrame {
     private javax.swing.JScrollPane jScrollPane4;
     private javax.swing.JTabbedPane jTabbedPane1;
     // End of variables declaration//GEN-END:variables
+
+    @Override
+    public void doUpdate() {
+        //clearPanels();
+        updateAttachments();
+    }
+
+    @Override
+    public void doUpdateOneElement(int where) {
+        throw new UnsupportedOperationException("Not supported yet."); // Generated from nbfs://nbhost/SystemFileSystem/Templates/Classes/Code/GeneratedMethodBody
+    }
 }

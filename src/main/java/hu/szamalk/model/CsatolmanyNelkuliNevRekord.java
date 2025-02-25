@@ -31,21 +31,33 @@ public class CsatolmanyNelkuliNevRekord extends javax.swing.JPanel {
     private void initComponents() {
 
         TF_nev = new javax.swing.JTextField();
-        TF_kijelol = new javax.swing.JCheckBox();
+        Chk_kijelol = new javax.swing.JCheckBox();
         TF_email = new javax.swing.JTextField();
-        jButton1 = new javax.swing.JButton();
+        Bt_torol = new javax.swing.JButton();
+        La_sorszam = new javax.swing.JLabel();
 
+        setMaximumSize(new java.awt.Dimension(424, 80));
+        setPreferredSize(new java.awt.Dimension(316, 63));
+
+        TF_nev.setEditable(false);
         TF_nev.setText("Szabó Roland");
+        TF_nev.setMaximumSize(new java.awt.Dimension(300, 2147483647));
         TF_nev.setMinimumSize(new java.awt.Dimension(84, 22));
+        TF_nev.setPreferredSize(new java.awt.Dimension(100, 22));
 
+        TF_email.setEditable(false);
         TF_email.setText("rolandszb111@gmail.com");
+        TF_email.setMaximumSize(new java.awt.Dimension(288, 2147483647));
         TF_email.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 TF_emailActionPerformed(evt);
             }
         });
 
-        jButton1.setText("Töröl");
+        Bt_torol.setText("Töröl");
+
+        La_sorszam.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
+        La_sorszam.setText("16");
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(this);
         this.setLayout(layout);
@@ -53,32 +65,38 @@ public class CsatolmanyNelkuliNevRekord extends javax.swing.JPanel {
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
                 .addContainerGap()
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(layout.createSequentialGroup()
-                        .addComponent(TF_kijelol)
-                        .addGap(3, 3, 3)
-                        .addComponent(TF_nev, javax.swing.GroupLayout.DEFAULT_SIZE, 144, Short.MAX_VALUE))
-                    .addComponent(TF_email))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                .addComponent(jButton1)
-                .addGap(3, 3, 3))
+                        .addComponent(Chk_kijelol)
+                        .addGap(12, 12, 12)
+                        .addComponent(TF_nev, javax.swing.GroupLayout.PREFERRED_SIZE, 116, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(La_sorszam, javax.swing.GroupLayout.PREFERRED_SIZE, 28, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addComponent(TF_email, javax.swing.GroupLayout.PREFERRED_SIZE, 172, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addGap(3, 3, 3)
+                .addComponent(Bt_torol)
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(layout.createSequentialGroup()
-                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
-                            .addComponent(TF_kijelol, javax.swing.GroupLayout.PREFERRED_SIZE, 26, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addGroup(javax.swing.GroupLayout.Alignment.LEADING, layout.createSequentialGroup()
-                                .addGap(3, 3, 3)
-                                .addComponent(TF_nev, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)))
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(TF_email, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                        .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                        .addComponent(Chk_kijelol, javax.swing.GroupLayout.PREFERRED_SIZE, 26, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
                     .addGroup(layout.createSequentialGroup()
-                        .addGap(18, 18, 18)
-                        .addComponent(jButton1)))
-                .addContainerGap(7, Short.MAX_VALUE))
+                        .addGap(10, 10, 10)
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                            .addComponent(TF_nev, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(La_sorszam, javax.swing.GroupLayout.PREFERRED_SIZE, 22, javax.swing.GroupLayout.PREFERRED_SIZE))
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)))
+                .addComponent(TF_email, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+            .addGroup(layout.createSequentialGroup()
+                .addGap(19, 19, 19)
+                .addComponent(Bt_torol)
+                .addGap(21, 21, 21))
         );
     }// </editor-fold>//GEN-END:initComponents
 
@@ -88,9 +106,10 @@ public class CsatolmanyNelkuliNevRekord extends javax.swing.JPanel {
 
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
+    private javax.swing.JButton Bt_torol;
+    private javax.swing.JCheckBox Chk_kijelol;
+    private javax.swing.JLabel La_sorszam;
     private javax.swing.JTextField TF_email;
-    private javax.swing.JCheckBox TF_kijelol;
     private javax.swing.JTextField TF_nev;
-    private javax.swing.JButton jButton1;
     // End of variables declaration//GEN-END:variables
 }

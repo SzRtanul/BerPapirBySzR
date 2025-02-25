@@ -34,9 +34,13 @@ public class InaktivNevRekord extends javax.swing.JPanel {
         jButton2 = new javax.swing.JButton();
         jLabel1 = new javax.swing.JLabel();
 
+        setMaximumSize(new java.awt.Dimension(400, 80));
+
+        TF_nev.setEditable(false);
         TF_nev.setText("Szabó Roland");
         TF_nev.setMinimumSize(new java.awt.Dimension(85, 22));
 
+        TF_email.setEditable(false);
         TF_email.setText("rolandszb111@gmail.com");
         TF_email.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
@@ -45,6 +49,7 @@ public class InaktivNevRekord extends javax.swing.JPanel {
         });
 
         jButton1.setText("Töröl");
+        jButton1.setEnabled(false);
 
         Cb_csatolmanyok.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "Nagy Barbara Margit 1_202309_98_20_003_00_MunkaBerjegyzek.pdf", "Nagy Barbara Margit 1_202309_98_20_004_00_MunkaBerjegyzek.pdf" }));
         Cb_csatolmanyok.setMinimumSize(new java.awt.Dimension(0, 22));
@@ -68,9 +73,9 @@ public class InaktivNevRekord extends javax.swing.JPanel {
                 .addGap(3, 3, 3)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(layout.createSequentialGroup()
-                        .addComponent(TF_nev, javax.swing.GroupLayout.DEFAULT_SIZE, 110, Short.MAX_VALUE)
+                        .addComponent(TF_nev, javax.swing.GroupLayout.DEFAULT_SIZE, 147, Short.MAX_VALUE)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(TF_email, javax.swing.GroupLayout.DEFAULT_SIZE, 155, Short.MAX_VALUE))
+                        .addComponent(TF_email, javax.swing.GroupLayout.DEFAULT_SIZE, 191, Short.MAX_VALUE))
                     .addGroup(layout.createSequentialGroup()
                         .addComponent(Cb_csatolmanyok, 0, 1, Short.MAX_VALUE)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)

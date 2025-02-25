@@ -21,6 +21,7 @@ public class LevelRekord extends javax.swing.JPanel {
      */
     public LevelRekord(int nevHely, int[] csatolmanyok) {
         initComponents();
+        System.out.println("Amit kap:" + nevHely);
         TF_nev.setText(MainGUI.nevEmailMunkaviszony[nevHely][0]);
         TF_email.setText(MainGUI.nevEmailMunkaviszony[nevHely][1]);
         La_sorszam.setText(MainGUI.sorszam[nevHely] + "");
@@ -176,7 +177,12 @@ public class LevelRekord extends javax.swing.JPanel {
     }//GEN-LAST:event_Bt_kuldActionPerformed
 
     private void Bt_torolActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_Bt_torolActionPerformed
-        MainGUI.inaktivalt[nevHely] = false;
+        MainGUI.inaktivalt[nevHely] = true;
+        if(MainGUI.notice != null){ 
+            System.out.println("Végrehajt!");
+            System.out.println(nevHely);
+            MainGUI.notice.doUpdate();
+        }
     }//GEN-LAST:event_Bt_torolActionPerformed
 
     private void Chk_kijelolActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_Chk_kijelolActionPerformed
