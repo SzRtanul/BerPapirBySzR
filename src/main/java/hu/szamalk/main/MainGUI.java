@@ -22,7 +22,9 @@ import java.util.Arrays;
 import java.util.Properties;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import javax.mail.Message;
 import javax.swing.BoxLayout;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 
 /**
@@ -34,6 +36,10 @@ public class MainGUI extends javax.swing.JFrame implements ModelGUIControlInterf
     static String path;
     
     String subject;
+    String smtpHost;
+    String smtpPort;
+    String senderEmail;
+    String applicationPassword;
     
     private static EmailService email;
     JPanel[] jPanels;
@@ -70,8 +76,8 @@ public class MainGUI extends javax.swing.JFrame implements ModelGUIControlInterf
     public MainGUI() {
         initComponents();
         jTabbedPane1.setEnabledAt(2, false);
-        email = new EmailService("smtp.gmail.com", "465", "elekt843@gmail.com", "xlns bjfp mdwq wfgf");
         jPanels = new JPanel[]{Pn_withcsatm, Pn_withoutcsatm, Pn_kivontCsatolmanyok, Pn_kivontCimzettek, Pn_elkuldott};
+        
         
         for (int i = 0; i < jPanels.length; i++) {
             jPanels[i].setLayout(new BoxLayout(jPanels[i], BoxLayout.Y_AXIS));
@@ -84,6 +90,7 @@ public class MainGUI extends javax.swing.JFrame implements ModelGUIControlInterf
         path = "files";
         //nevEmail
         updateNames();
+        email = new EmailService(smtpHost, smtpPort, senderEmail, applicationPassword);
         notice = this;
     }
 
@@ -476,7 +483,7 @@ public class MainGUI extends javax.swing.JFrame implements ModelGUIControlInterf
         
         
          try {
-            String[] sorok = Files.lines(Paths.get("config/adatok2.csv")).toArray(String[]::new);
+            String[] sorok = Files.lines(Paths.get("config/adatok.csv")).toArray(String[]::new);
             nevEmailMunkaviszony = new String[sorok.length][3];
             for(int i = 0; i<sorok.length; i++) {
               String[] data = sorok[i].split(";");
@@ -514,8 +521,17 @@ public class MainGUI extends javax.swing.JFrame implements ModelGUIControlInterf
         try {
             prop.load(new InputStreamReader(new FileInputStream(new File("config/settings.properties")), Charset.forName("UTF-8")));
             subject = prop.getProperty("email.subject");
+            
+            smtpHost = prop.getProperty("emailAuth.smtpHost");
+            smtpPort = prop.getProperty("emailAuth.smtpPort");
+            senderEmail = prop.getProperty("emailAuth.senderEmail");
+            applicationPassword = prop.getProperty("emailAuth.appéicationPassword");
+            
+            
         } 
         catch (IOException ex) {
+            JOptionPane.showMessageDialog(this, "Hibás konfiguráció", "HIBA!", JOptionPane.ERROR_MESSAGE);
+            System.exit(404);
             ex.printStackTrace();
         }
         FileList = getFileList();
@@ -571,7 +587,6 @@ public class MainGUI extends javax.swing.JFrame implements ModelGUIControlInterf
         }
         
         for (int i = 0; i < FileList.length; i++) {
-            System.out.println(tartozik[i]);
             if(tartozik[i] == -1) Pn_kivontCsatolmanyok.add(new CsatolmanyRekord(i));
         }
         
@@ -586,20 +601,15 @@ public class MainGUI extends javax.swing.JFrame implements ModelGUIControlInterf
         Runnable r;
         r= new Runnable(){
             public void run() {
-                System.out.println(nevHely + "");
                 try {
-                    System.out.println(nevEmailMunkaviszony[nevHely][1]);
                     if(MainGUI.notice != null && notice.isKuldheto(nevHely)){
-                        while(!email.sendMail(nevEmailMunkaviszony[nevHely][1], 
+                        if(email.sendMail(nevEmailMunkaviszony[nevHely][1], 
                             subject, Files.readString(Paths.get("config/emailtext.html")), "files/", csatolmanyFajlNevek[nevHely])){
-                            System.out.println(nevHely);
-                            Thread.sleep(1000);
+                            elkuldott[nevHely] = true;
+                            if(notice != null) notice.doUpdate();
                         }
-                        elkuldott[nevHely] = true;
-                        if(notice != null) notice.doUpdate();
                     }
                 } catch (Exception e) {
-                    
                     System.out.println(e.getMessage());
                 }
                 pool.close();

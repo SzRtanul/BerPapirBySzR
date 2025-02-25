@@ -20,7 +20,7 @@ import java.util.logging.Logger;
 public class MakeMuchFile {
     
     public static void main(String[] args){
-       // makeNames();
+        makeNames();
        // makeFiles();
     }
     
@@ -28,7 +28,7 @@ public class MakeMuchFile {
          try {
             FileWriter fw = new FileWriter("config/adatok2.csv", Charset.forName("UTF-8"));
             for (int i = 0; i < 500; i++) {
-                fw.write("Szabó Roland " + i +";dosal97451@kytstore.com\n");
+                fw.write("Szabó Roland " + i +";szrtanul@gmail.com\n");
                 fw.flush();
             }
             fw.close();
