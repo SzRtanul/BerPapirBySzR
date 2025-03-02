@@ -6,7 +6,7 @@ Információk a programról:
 
 - A programból a legtöbb paraméter nem állítható. Helyette a projekt config/ mappájában található fájlokon keresztül adhatóak át a szükséges paraméterek.
 
-A hibák elkerülése miatt az adatok2.csv-t, amit a program jelenleg beolvas, notepad-dal vagy notepad++-szal szabad szerkeszteni.
+A hibák elkerülése miatt az adatok.csv-t, amit a program jelenleg beolvas, notepad-dal vagy notepad++-szal szabad szerkeszteni.
 
 - A .pdf fájlokat a program a projekt files/ mappájából olvassa be.
     
