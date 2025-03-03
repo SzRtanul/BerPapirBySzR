@@ -709,6 +709,11 @@ public class MainGUI extends javax.swing.JFrame implements ModelGUIControlInterf
         for (int i = 0; i < Files.length; i++) {
             new File("files/"+Files[i]).delete();
         }
+        for (int i = 0; i < nevEmailMunkaviszony.length; i++) {
+            nevetKijelol[i] = false;
+            elkuldott[i] = false;
+            inaktivalt[i] = false;
+        }
         updateAttachments();
     }//GEN-LAST:event_Bt_osszesFajlTorleseActionPerformed
     
